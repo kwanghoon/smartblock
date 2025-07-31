@@ -1,0 +1,27 @@
+1. 최신 버전 Blockly를 사용해서
+   Custom Block을 만들고 이 Block의 자료 구조(아무것이 상관없음)를 생성하는 프로그램 작성
+
+   - Blockly.SmartThings.workspaceToCode(workspace);
+   - Blockly.Blocks['name'] = ...
+   - Blockly.SmartThings['name'] = function(block) { ... }
+   - Blockly.SmartThings.valueToCode(block, 'Event', Blockly.SmartThings.ORDER_ATOMIC);
+
+2. Home Assistant 예제 확보
+
+   - 문이 열리면, 전등을 켠다
+
+3. SmarBlock에서
+
+   - 문, 불 이라는 장치(Device)  caps.js 찾기
+
+   - ECA 블록 만들고 (Blockly.Blocks['eca'] = ... )
+   - ECA 블록을 자료구조 변환하는 함수 작성
+      (Blockly.SmartThings['eca'] = function(block) { ... } )
+
+   - 문에 대한 이벤트 블록 만들고 (Blockly.Blocks['open??'] = ... )
+   - 문 블록을 자료구조로 변환하는 함수 작성
+      (Blockly.SmartThings['open???'] = function(block) { ... } )
+
+   - 전등에 대한 이벤트 블록 만들고 (Blockly.Blocks['light??'] = ... )
+   - 전등 블록을 자료구조로 변환하는 함수 작성
+      (Blockly.SmartThings['light???'] = function(block) { ... } )

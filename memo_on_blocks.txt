@@ -2,6 +2,121 @@
 [참고] Blockly에서 블록 정의,  https://vleudive.github.io/2018/01/24/4_javascript_define_block/
 
 
+* Blockly의 workspace (AST의 루트)를 
+* 박나연이 정의한 ECA 리스트로 변환 
+
+
+var ecaList = Blockly.SmartThings.workspaceToCode(workspace);
+
+// rule_definer.js : blockly blocks을 정의
+// rule_generator.js : 스마트띵스 코드를 생성하는 법을 정의
+
+*  - Blockly.Blocks['eca']에 Blockly 블록 정의
+*  - Blockly.SmartThings['eca']에 Block 구조를 박나연이 정의한 자료로 변환하는 함수
+
+   - Blockly 워크스페이스와 블록을 자료 구조로 변환하기 위해 필요한 traverse 유틸리티 함수 
+      workspaceToCode, valueToCode 
+      
+// rule_definer.js
+Blockly.Blocks['eca'] = {
+	init: function() {
+		this.appendValueInput("Event")
+			.setCheck("Event")
+			.appendField("Event");
+		this.appendValueInput("Condition")
+			.setCheck("Condition")
+			.appendField("Condition");
+		this.appendValueInput("Action")
+			.setCheck("Action")
+			.appendField("Action");
+		this.setPreviousStatement(true, ["ECA", "EA"]);
+		this.setNextStatement(true, ["ECA", "EA"]);
+		this.setColour(Block_colour_eca);
+		this.setTooltip("");
+		this.setHelpUrl("");
+	}
+};
+
+// event_timer.js
+
+Blockly.Blocks['e_time'] = {
+  init: function() {
+	var time_num = deviceCount.get("schedule")
+    this.appendValueInput("time")
+        .appendField("at")
+        .appendField(new Blockly.FieldTextInput("0"), "hour")
+        .appendField(":","c")
+        .appendField(new Blockly.FieldTextInput("0"), "minute")
+		.appendField(new Blockly.FieldDropdown([["AM","AM"], ["PM","PM"]]), "apm")
+        .setCheck(["day_e", "week_e"]);
+    this.setOutput(true, "Event");
+    this.setColour(Block_colour_event);
+ this.setTooltip("");
+ this.setHelpUrl("");
+  }
+};
+
+// rule_generator.js 
+Blockly.SmartThings['eca'] = function(block) {
+	var value_event = 
+      Blockly.SmartThings.valueToCode(block, 'Event', Blockly.SmartThings.ORDER_ATOMIC);
+	var value_condition = 
+      Blockly.SmartThings.valueToCode(block, 'Condition', Blockly.SmartThings.ORDER_ATOMIC);
+	var value_action = 
+      Blockly.SmartThings.valueToCode(block, 'Action', Blockly.SmartThings.ORDER_ATOMIC);
+  // TODO: Assemble SmartThings into ECA node.
+		
+	var rule = new ECA(value_event, value_condition, value_action); // 박나연이 정의한 ECA 자료 구조 
+	
+	return rule;
+};
+
+// event_timer.js
+Blockly.SmartThings['e_time'] = function(block) {
+  var text_hour = block.getFieldValue('hour');
+  var text_minute = block.getFieldValue('minute');
+  var dropdown_apm = block.getFieldValue('apm');
+  var value_month_day_year = Blockly.SmartThings.valueToCode(block, 'time', Blockly.SmartThings.ORDER_ATOMIC);
+  // TODO: Assemble SmartThings into code variable.
+    var time
+	if(value_month_day_year != "")
+		time = value_month_day_year
+	else  time ="0 minutes hours day month week"
+
+
+	if(dropdown_apm == "PM")
+		text_hour = (parseInt(text_hour)+12).toString()
+
+	...
+
+	var smartevent = new Event();
+	smartevent.time = time;
+	return smartevent;
+};
+
+* 박나연이 정의한 ECA 리스트를 표현하는 자료 구조를
+* Groovy로 작성된 SmartApp 코드로 변환하는 함수 
+
+function smartApp(ecaList){
+     ...
+}
+
+
+Step1: index.html
+  - var ecaList = Blockly.SmartThings.workspaceToCode(workspace);
+
+Step2:  rule_generator.js
+  (2-1) Blockly.SmartThings['eca']를 호출 
+  (2-2) var value_event = 
+           Blockly.SmartThings.valueToCode(block, 'Event', Blockly.SmartThings.ORDER_ATOMIC);
+
+  cf.  Blockly.SmartThings['eca'] = function(block) { ... }
+
+Step3: event_timer.js 
+  (3-1)  (2-2)로 부터 Blockly.SmartThings['e_time']을 호출 
+
+  cf. Blockly.SmartThings['e_time'] = function(block) { ... }
+
 **************************************************
 *** Blockly.Blocks 배열을 구성하는 블록 정의     ***
 **************************************************
